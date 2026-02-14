@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SocialConnect - Your Social Network</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="light-mode">
+    <!-- Loading Animation -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="spinner"></div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Language Toggle -->
+    <div class="language-toggle">
+        <button class="lang-btn" onclick="toggleLanguage()" id="langToggle">বাংলা</button>
+    </div>
+
+    <!-- Theme Toggle -->
+    <div class="theme-toggle">
+        <button class="theme-btn" onclick="toggleTheme()">
+            <i class="fas fa-moon" id="themeIcon"></i>
+        </button>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container" id="app">
+        <!-- Login Section -->
+        <div class="glass-card login-section" id="loginSection">
+            <h2 class="gradient-text" data-en="Welcome Back!" data-bn="স্বাগতম!">Welcome Back!</h2>
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="loginEmail" placeholder=" " required>
+                    <label for="loginEmail" data-en="Email" data-bn="ইমেইল">Email</label>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="loginPassword" placeholder=" " required>
+                    <label for="loginPassword" data-en="Password" data-bn="পাসওয়ার্ড">Password</label>
+                </div>
+                <button type="submit" class="btn-primary" data-en="Login" data-bn="লগইন">Login</button>
+            </form>
+            <p class="switch-text">
+                <span data-en="Don't have an account?" data-bn="একাউন্ট নেই?">Don't have an account?</span>
+                <a href="#" onclick="showSignup()" data-en="Sign Up" data-bn="সাইন আপ">Sign Up</a>
+            </p>
+        </div>
+
+        <!-- Signup Section -->
+        <div class="glass-card signup-section" id="signupSection" style="display: none;">
+            <h2 class="gradient-text" data-en="Create Account" data-bn="একাউন্ট তৈরি করুন">Create Account</h2>
+            <form id="signupForm" onsubmit="handleSignup(event)">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="signupName" placeholder=" " required>
+                    <label for="signupName" data-en="Full Name" data-bn="পুরো নাম">Full Name</label>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="signupEmail" placeholder=" " required>
+                    <label for="signupEmail" data-en="Email" data-bn="ইমেইল">Email</label>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="signupPassword" placeholder=" " required>
+                    <label for="signupPassword" data-en="Password" data-bn="পাসওয়ার্ড">Password</label>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-image"></i>
+                    <input type="file" id="signupProfilePic" accept="image/*">
+                    <label for="signupProfilePic" data-en="Profile Picture (Optional)" data-bn="প্রোফাইল ছবি (ঐচ্ছিক)">Profile Picture (Optional)</label>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-info-circle"></i>
+                    <textarea id="signupBio" placeholder=" " rows="3"></textarea>
+                    <label for="signupBio" data-en="Bio (Optional)" data-bn="বায়ো (ঐচ্ছিক)">Bio (Optional)</label>
+                </div>
+                <button type="submit" class="btn-primary" data-en="Sign Up" data-bn="সাইন আপ">Sign Up</button>
+            </form>
+            <p class="switch-text">
+                <span data-en="Already have an account?" data-bn="ইতিমধ্যে একাউন্ট আছে?">Already have an account?</span>
+                <a href="#" onclick="showLogin()" data-en="Login" data-bn="লগইন">Login</a>
+            </p>
+        </div>
+
+        <!-- Main Feed Section -->
+        <div class="main-section" id="mainSection" style="display: none;">
+            <!-- Header -->
+            <header class="glass-card header">
+                <h1 class="gradient-text">SocialConnect</h1>
+                <div class="header-right">
+                    <span id="userName"></span>
+                    <div class="profile-mini" id="profileMini" onclick="showProfileModal()">
+                        <img id="headerProfilePic" src="https://via.placeholder.com/40" alt="Profile">
+                    </div>
+                    <button class="btn-logout" onclick="handleLogout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span data-en="Logout" data-bn="লগআউট">Logout</span>
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <!-- Left Sidebar - Profile -->
+                <div class="sidebar left-sidebar glass-card">
+                    <div class="profile-card">
+                        <img id="sidebarProfilePic" src="https://via.placeholder.com/120" alt="Profile">
+                        <h3 id="sidebarName">User Name</h3>
+                        <p id="sidebarBio">Bio goes here</p>
+                        <button class="btn-edit" onclick="showEditProfileModal()">
+                            <i class="fas fa-edit"></i>
+                            <span data-en="Edit Profile" data-bn="প্রোফাইল সম্পাদনা">Edit Profile</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Main Content - Feed -->
+                <div class="feed-section">
+                    <!-- Create Post -->
+                    <div class="create-post glass-card">
+                        <textarea id="postContent" placeholder="What's on your mind?" data-en-placeholder="What's on your mind?" data-bn-placeholder="আপনার মনের কথা বলুন"></textarea>
+                        <div class="post-actions">
+                            <input type="file" id="postImage" accept="image/*" style="display: none;">
+                            <button class="btn-icon" onclick="document.getElementById('postImage').click()">
+                                <i class="fas fa-image"></i>
+                                <span data-en="Photo" data-bn="ছবি">Photo</span>
+                            </button>
+                            <button class="btn-primary" onclick="createPost()">
+                                <span data-en="Post" data-bn="পোস্ট">Post</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Posts Feed -->
+                    <div id="postsFeed" class="posts-feed"></div>
+                </div>
+
+                <!-- Right Sidebar - Info -->
+                <div class="sidebar right-sidebar glass-card">
+                    <h3 data-en="Trending Topics" data-bn="ট্রেন্ডিং টপিক">Trending Topics</h3>
+                    <div class="trending-item">#SocialConnect</div>
+                    <div class="trending-item">#WebDevelopment</div>
+                    <div class="trending-item">#Java</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Profile Modal -->
+    <div class="modal" id="profileModal">
+        <div class="modal-content glass-card">
+            <span class="close" onclick="closeProfileModal()">&times;</span>
+            <h2 data-en="Your Profile" data-bn="আপনার প্রোফাইল">Your Profile</h2>
+            <img id="modalProfilePic" src="https://via.placeholder.com/150" alt="Profile">
+            <h3 id="modalName"></h3>
+            <p id="modalEmail"></p>
+            <p id="modalBio"></p>
+        </div>
+    </div>
+
+    <!-- Edit Profile Modal -->
+    <div class="modal" id="editProfileModal">
+        <div class="modal-content glass-card">
+            <span class="close" onclick="closeEditProfileModal()">&times;</span>
+            <h2 data-en="Edit Profile" data-bn="প্রোফাইল সম্পাদনা">Edit Profile</h2>
+            <form id="editProfileForm" onsubmit="handleEditProfile(event)">
+                <div class="input-group">
+                    <i class="fas fa-user"></i>
+                    <input type="text" id="editName" placeholder=" " required>
+                    <label for="editName" data-en="Full Name" data-bn="পুরো নাম">Full Name</label>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-image"></i>
+                    <input type="file" id="editProfilePic" accept="image/*">
+                    <label for="editProfilePic" data-en="Change Profile Picture" data-bn="প্রোফাইল ছবি পরিবর্তন">Change Profile Picture</label>
+                </div>
+                <div class="input-group">
+                    <i class="fas fa-info-circle"></i>
+                    <textarea id="editBio" placeholder=" " rows="3"></textarea>
+                    <label for="editBio" data-en="Bio" data-bn="বায়ো">Bio</label>
+                </div>
+                <button type="submit" class="btn-primary" data-en="Save Changes" data-bn="সংরক্ষণ করুন">Save Changes</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Comment Modal -->
+    <div class="modal" id="commentModal">
+        <div class="modal-content glass-card">
+            <span class="close" onclick="closeCommentModal()">&times;</span>
+            <h2 data-en="Comments" data-bn="মন্তব্য">Comments</h2>
+            <div id="commentsList" class="comments-list"></div>
+            <div class="add-comment">
+                <input type="text" id="commentInput" placeholder="Add a comment..." data-en-placeholder="Add a comment..." data-bn-placeholder="মন্তব্য যোগ করুন...">
+                <button class="btn-primary" onclick="addComment()" data-en="Post" data-bn="পোস্ট">Post</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // State Management
+        let currentUser = null;
+        let currentLanguage = 'en';
+        let currentPostId = null;
+        let posts = [];
+
+        // API Base URL
+        const API_BASE = 'http://localhost:8080/api';
+
+        // Utility Functions
+        function showLoading() {
+            document.getElementById('loadingOverlay').style.display = 'flex';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').style.display = 'none';
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            document.getElementById('toastContainer').appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Language Support
+        function toggleLanguage() {
+            currentLanguage = currentLanguage === 'en' ? 'bn' : 'en';
+            document.getElementById('langToggle').textContent = currentLanguage === 'en' ? 'বাংলা' : 'English';
+            updateLanguage();
+        }
+
+        function updateLanguage() {
+            const elements = document.querySelectorAll('[data-en]');
+            elements.forEach(el => {
+                if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
+                    el.placeholder = el.getAttribute(`data-${currentLanguage}-placeholder`) || el.getAttribute(`data-${currentLanguage}`);
+                } else {
+                    el.textContent = el.getAttribute(`data-${currentLanguage}`);
+                }
+            });
+        }
+
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            if (body.classList.contains('light-mode')) {
+                body.classList.remove('light-mode');
+                body.classList.add('dark-mode');
+                icon.className = 'fas fa-sun';
+            } else {
+                body.classList.remove('dark-mode');
+                body.classList.add('light-mode');
+                icon.className = 'fas fa-moon';
+            }
+        }
+
+        // Authentication
+        async function handleLogin(event) {
+            event.preventDefault();
+            showLoading();
+            
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                if (response.ok) {
+                    const user = await response.json();
+                    currentUser = user;
+                    document.getElementById('loginSection').style.display = 'none';
+                    document.getElementById('mainSection').style.display = 'block';
+                    updateUserInfo();
+                    loadPosts();
+                    showToast('Login successful!');
+                } else {
+                    showToast('Login failed!', 'error');
+                }
+            } catch (error) {
+                showToast('Connection error!', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function handleSignup(event) {
+            event.preventDefault();
+            showLoading();
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('signupName').value);
+            formData.append('email', document.getElementById('signupEmail').value);
+            formData.append('password', document.getElementById('signupPassword').value);
+            formData.append('bio', document.getElementById('signupBio').value);
+            
+            const profilePic = document.getElementById('signupProfilePic').files[0];
+            if (profilePic) {
+                formData.append('profilePicture', profilePic);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/signup`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    showToast('Signup successful! Please login.');
+                    showLogin();
+                } else {
+                    showToast('Signup failed!', 'error');
+                }
+            } catch (error) {
+                showToast('Connection error!', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function handleLogout() {
+            try {
+                await fetch(`${API_BASE}/auth/logout`, { method: 'POST' });
+                currentUser = null;
+                document.getElementById('loginSection').style.display = 'flex';
+                document.getElementById('mainSection').style.display = 'none';
+                showToast('Logged out successfully!');
+            } catch (error) {
+                showToast('Error logging out!', 'error');
+            }
+        }
+
+        // Posts
+        async function createPost() {
+            const content = document.getElementById('postContent').value;
+            const imageFile = document.getElementById('postImage').files[0];
+
+            if (!content && !imageFile) {
+                showToast('Please add content or image!', 'error');
+                return;
+            }
+
+            showLoading();
+
+            const formData = new FormData();
+            formData.append('content', content);
+            formData.append('userId', currentUser.id);
+            if (imageFile) {
+                formData.append('image', imageFile);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/posts`, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    document.getElementById('postContent').value = '';
+                    document.getElementById('postImage').value = '';
+                    loadPosts();
+                    showToast('Post created successfully!');
+                } else {
+                    showToast('Failed to create post!', 'error');
+                }
+            } catch (error) {
+                showToast('Connection error!', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        async function loadPosts() {
+            try {
+                const response = await fetch(`${API_BASE}/posts`);
+                if (response.ok) {
+                    posts = await response.json();
+                    displayPosts();
+                }
+            } catch (error) {
+                showToast('Error loading posts!', 'error');
+            }
+        }
+
+        function displayPosts() {
+            const feed = document.getElementById('postsFeed');
+            feed.innerHTML = '';
+
+            posts.forEach(post => {
+                const postElement = createPostElement(post);
+                feed.appendChild(postElement);
+            });
+        }
+
+        function createPostElement(post) {
+            const div = document.createElement('div');
+            div.className = 'post glass-card';
+            div.innerHTML = `
+                <div class="post-header">
+                    <img src="${post.user.profilePicture || 'https://via.placeholder.com/40'}" alt="User">
+                    <div>
+                        <h4>${post.user.name}</h4>
+                        <small>${new Date(post.createdAt).toLocaleString()}</small>
+                    </div>
+                    ${post.user.id === currentUser?.id ? '<button class="delete-post" onclick="deletePost(' + post.id + ')"><i class="fas fa-trash"></i></button>' : ''}
+                </div>
+                <div class="post-content">
+                    <p>${post.content}</p>
+                    ${post.imageUrl ? `<img src="${post.imageUrl}" alt="Post image">` : ''}
+                </div>
+                <div class="post-stats">
+                    <span><i class="fas fa-heart"></i> <span id="likeCount-${post.id}">${post.likes || 0}</span> likes</span>
+                    <span><i class="fas fa-comment"></i> <span id="commentCount-${post.id}">${post.comments?.length || 0}</span> comments</span>
+                </div>
+                <div class="post-actions">
+                    <button class="btn-icon" onclick="toggleLike(${post.id})">
+                        <i class="fas fa-heart ${post.userLiked ? 'liked' : ''}"></i>
+                        <span data-en="Like" data-bn="পছন্দ">Like</span>
+                    </button>
+                    <button class="btn-icon" onclick="showComments(${post.id})">
+                        <i class="fas fa-comment"></i>
+                        <span data-en="Comment" data-bn="মন্তব্য">Comment</span>
+                    </button>
+                </div>
+            `;
+            return div;
+        }
+
+        // Likes
+        async function toggleLike(postId) {
+            try {
+                const response = await fetch(`${API_BASE}/posts/${postId}/like`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUser.id })
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById(`likeCount-${postId}`).textContent = result.likes;
+                    loadPosts();
+                }
+            } catch (error) {
+                showToast('Error toggling like!', 'error');
+            }
+        }
+
+        // Comments
+        async function showComments(postId) {
+            currentPostId = postId;
+            const post = posts.find(p => p.id === postId);
+            
+            const commentsList = document.getElementById('commentsList');
+            commentsList.innerHTML = '';
+
+            if (post && post.comments) {
+                post.comments.forEach(comment => {
+                    const commentDiv = document.createElement('div');
+                    commentDiv.className = 'comment';
+                    commentDiv.innerHTML = `
+                        <img src="${comment.user.profilePicture || 'https://via.placeholder.com/30'}" alt="User">
+                        <div>
+                            <h5>${comment.user.name}</h5>
+                            <p>${comment.content}</p>
+                            <small>${new Date(comment.createdAt).toLocaleString()}</small>
+                        </div>
+                    `;
+                    commentsList.appendChild(commentDiv);
+                });
+            }
+
+            document.getElementById('commentModal').style.display = 'block';
+        }
+
+        async function addComment() {
+            const content = document.getElementById('commentInput').value;
+            if (!content) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/posts/${currentPostId}/comments`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUser.id, content })
+                });
+
+                if (response.ok) {
+                    document.getElementById('commentInput').value = '';
+                    loadPosts();
+                    showComments(currentPostId);
+                    showToast('Comment added!');
+                }
+            } catch (error) {
+                showToast('Error adding comment!', 'error');
+            }
+        }
+
+        async function deletePost(postId) {
+            if (!confirm('Delete this post?')) return;
+
+            try {
+                const response = await fetch(`${API_BASE}/posts/${postId}?userId=${currentUser.id}`, {
+                    method: 'DELETE'
+                });
+
+                if (response.ok) {
+                    loadPosts();
+                    showToast('Post deleted!');
+                }
+            } catch (error) {
+                showToast('Error deleting post!', 'error');
+            }
+        }
+
+        // Profile
+        function updateUserInfo() {
+            if (!currentUser) return;
+
+            document.getElementById('userName').textContent = currentUser.name;
+            document.getElementById('headerProfilePic').src = currentUser.profilePicture || 'https://via.placeholder.com/40';
+            document.getElementById('sidebarProfilePic').src = currentUser.profilePicture || 'https://via.placeholder.com/120';
+            document.getElementById('sidebarName').textContent = currentUser.name;
+            document.getElementById('sidebarBio').textContent = currentUser.bio || 'No bio yet';
+            document.getElementById('modalName').textContent = currentUser.name;
+            document.getElementById('modalEmail').textContent = currentUser.email;
+            document.getElementById('modalBio').textContent = currentUser.bio || 'No bio yet';
+            document.getElementById('modalProfilePic').src = currentUser.profilePicture || 'https://via.placeholder.com/150';
+            
+            document.getElementById('editName').value = currentUser.name;
+            document.getElementById('editBio').value = currentUser.bio || '';
+        }
+
+        async function handleEditProfile(event) {
+            event.preventDefault();
+            showLoading();
+
+            const formData = new FormData();
+            formData.append('name', document.getElementById('editName').value);
+            formData.append('bio', document.getElementById('editBio').value);
+            
+            const profilePic = document.getElementById('editProfilePic').files[0];
+            if (profilePic) {
+                formData.append('profilePicture', profilePic);
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/users/${currentUser.id}`, {
+                    method: 'PUT',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    currentUser = await response.json();
+                    updateUserInfo();
+                    closeEditProfileModal();
+                    showToast('Profile updated!');
+                }
+            } catch (error) {
+                showToast('Error updating profile!', 'error');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // UI Navigation
+        function showSignup() {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('signupSection').style.display = 'block';
+        }
+
+        function showLogin() {
+            document.getElementById('loginSection').style.display = 'flex';
+            document.getElementById('signupSection').style.display = 'none';
+        }
+
+        function showProfileModal() {
+            document.getElementById('profileModal').style.display = 'block';
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profileModal').style.display = 'none';
+        }
+
+        function showEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'block';
+        }
+
+        function closeEditProfileModal() {
+            document.getElementById('editProfileModal').style.display = 'none';
+        }
+
+        function closeCommentModal() {
+            document.getElementById('commentModal').style.display = 'none';
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target.classList.contains('modal')) {
+                event.target.style.display = 'none';
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            updateLanguage();
+        });
+    </script>
+</body>
+</html>
